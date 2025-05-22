@@ -1,7 +1,9 @@
 services:
   - type: web
     name: discord-bot
-    env: python
+    runtime: python
     buildCommand: ""
-    startCommand: bash start.sh
-    autoDeploy: true
+    startCommand: "python main.py"
+    envVars:
+      - key: TOKEN
+        value: your_discord_bot_token
