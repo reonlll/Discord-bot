@@ -113,11 +113,11 @@ async def pvp(interaction: discord.Interaction, opponent: discord.User):
     atk_eq = get_equipment(interaction.user.id)
     def_eq = get_equipment(opponent.id)
 
-    atk_power = weapon_power.get(atk_eq["weapon"], 5)
-    atk_def = armor_defense.get(atk_eq["armor"], 2)
+    atk_power = weapon_power(atk_eq["weapon"], 5)
+    atk_def = armor_defense(atk_eq["armor"], 2)
 
-    def_power = weapon_power.get(def_eq["weapon"], 5)
-    def_def = armor_defense.get(def_eq["armor"], 2)
+    def_power = weapon_power(def_eq["weapon"], 5)
+    def_def = armor_defense(def_eq["armor"], 2)
 
     # HP初期化
     atk_hp = 100
