@@ -50,9 +50,6 @@ async def check_balance(interaction: discord.Interaction):
         ephemeral=True  # 自分にだけ表示
     )
 
-import json
-from discord import app_commands
-
 @bot.tree.command(name="送金", description="他のユーザーにスターコインを送ります")
 @app_commands.describe(user="送金先のユーザー", amount="送るコインの枚数")
 async def send(interaction: discord.Interaction, user: discord.Member, amount: int):
