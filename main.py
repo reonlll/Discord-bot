@@ -138,8 +138,9 @@ async def coin_ranking(interaction: discord.Interaction):
         await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
         return
 
-    @bot.tree.command(name="ランキング", description="スターコイン保有ランキングを表示（管理者専用）")
+@bot.tree.command(name="ランキング", description="ランキングを表示します")
 async def ranking(interaction: discord.Interaction):
+    # ここも4スペースずつインデント
     if not interaction.user.guild_permissions.administrator:
         await interaction.response.send_message("このコマンドは管理者専用です。", ephemeral=True)
         return
