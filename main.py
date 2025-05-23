@@ -142,7 +142,7 @@ async def pvp(interaction: discord.Interaction, opponent: discord.User):
     log += f"→ {opponent.name} の反撃！ サイコロ({def_atk_dice}) → {interaction.user.name} に {damage_to_atk} ダメージ！\n\n"
     log += f"【最終HP】\n{interaction.user.name}：{atk_hp} HP\n{opponent.name}：{def_hp} HP\n"
 
-    # 勝敗処理と記録
+# 勝敗処理と記録
 if atk_hp > def_hp:
     result = f"**{interaction.user.name} の勝利！**"
     record_result(str(interaction.user.id), str(opponent.id))
@@ -150,12 +150,13 @@ elif def_hp > atk_hp:
     result = f"**{opponent.name} の勝利！**"
     record_result(str(opponent.id), str(interaction.user.id))
 else:
-    result = "**引き分け！**"  # 引き分けは記録なし
+    result = "**引き分け！**"
 
 log += f"\n{result}"
 await interaction.response.send_message(log)
 
-from pvp_record import record_result
+# 勝率確認コマンド用
+from pvp_record import get_record
 
 # 勝敗処理のあとに追加
 if atk_hp > def_hp:
