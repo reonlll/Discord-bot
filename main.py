@@ -130,31 +130,6 @@ async def item_set(interaction: discord.Interaction, name: str):
     await interaction.response.send_message(f"アイテム「{name}」を装備しました！", ephemeral=True)
 
 
-
-@bot.tree.command(name="ランキング", description="スターコイン残高ランキングを表示します")
-async def coin_ranking(interaction: discord.Interaction):
-    all_data = get_all_balances()
-    if not all_data:
-        await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
-        return
-
-    # ランキングを表示する処理（例）
-    sorted_data = sorted(all_data.items(), key=lambda x: x[1], reverse=True)
-    ranking_text = "\n".join(
-        [f"{i+1}位 <@{user_id}>：{balance} SC" for i, (user_id, balance) in enumerate(sorted_data[:10])]
-    )
-
-    await interaction.response.send_message(f"**スターコインランキング**\n{ranking_text}")
-
-    # ランキング作成
-    ranking = sorted(data.items(), key=lambda x: x[1], reverse=True)
-    message = "**スターコインランキング**\n"
-    for i, (user_id, balance) in enumerate(ranking[:10], start=1):
-        user = await bot.fetch_user(int(user_id))
-        message += f"{i}. {user.name}：{balance} SC\n"
-
-    await interaction.response.send_message(message)
-
 # アイテム外す
 @bot.tree.command(name="アイテム外す", description="現在のアイテム装備を外します")
 async def item_remove(interaction: discord.Interaction):
