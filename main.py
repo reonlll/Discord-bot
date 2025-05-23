@@ -23,6 +23,23 @@ async def on_ready():
 
 # --- スラッシュコマンド ---
 
+@bot.tree.command(name="ギルドカード", description="自分のスターコイン残高と装備を表示します")
+async def guild_card(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    balance = get_balance(user_id)
+    eq = get_equipment(interaction.user.id)
+
+    message = (
+        f"**{interaction.user.name} のギルドカード**\n"
+        f"スターコイン：{balance} SC\n\n"
+        f"【装備】\n"
+        f"武器：{eq['weapon'] or 'なし'}\n"
+        f"防具：{eq['armor'] or 'なし'}\n"
+        f"アイテム：{eq['item'] or 'なし'}"
+    )
+
+    await interaction.response.send_message(message, ephemeral=True)
+
 # 残高確認
 @bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
 async def check_balance(interaction: discord.Interaction):
