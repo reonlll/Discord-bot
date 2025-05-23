@@ -18,10 +18,11 @@ async def on_ready():
 @bot.command(name="coin")
 async def coin(ctx):
     if ctx.author.guild_permissions.administrator:
+        balances = get_all_balances()
         message = "**全ユーザーのスターコイン残高：**\n"
         for user_id, bal in balances.items():
             user = await bot.fetch_user(int(user_id))
-            message += f"{user.name}：{bal} SC\n"
+            message += f"{user.name}: {bal} SC\n"
         await ctx.send(message)
     else:
         user_id = str(ctx.author.id)
