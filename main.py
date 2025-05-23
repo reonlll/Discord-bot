@@ -16,8 +16,11 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # --- Bot起動時にスラッシュコマンドを同期 ---
 @bot.event
 async def on_ready():
-    await tree.sync()
-    print(f"✅ ログイン成功: {bot.user}")
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ ログイン成功: {bot.user}（{len(synced)} コマンドを同期）")
+    except Exception as e:
+        print(f"スラッシュコマンドの同期中にエラー: {e}")
 
 # --- スラッシュコマンド: /残高確認 ---
 @bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
