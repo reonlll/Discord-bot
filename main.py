@@ -98,6 +98,61 @@ async def show_equipment(interaction: discord.Interaction):
         f"アイテム：{eq['item'] or 'なし'}",
         ephemeral=True
     )
+    
+    import random
+from pvp_stats import weapon_power, armor_defense
+
+@bot.tree.command(name="pvp", description="指定した相手とPvPバトルします（運要素あり）")
+@app_commands.describe(opponent="対戦相手")
+async def pvp(interaction: discord.Interaction, opponent: discord.User):
+    if opponent.id == interaction.user.id:
+        await interaction.response.send_message("自分自身とは戦えません！", ephemeral=True)
+        return
+
+    # 装備取得
+    atk_eq = get_equipment(interaction.user.id)
+    def_eq = get_equipment(opponent.id)
+
+    atk_power = weapon_power.get(atk_eq["weapon"], 5)
+    atk_def = armor_defense.get(atk_eq["armor"], 2)
+
+    def_power = weapon_power.get(def_eq["weapon"], 5)
+    def_def = armor_defense.get(def_eq["armor"], 2)
+
+    # HP初期化
+    atk_hp = 100
+    def_hp = 100
+
+    # 攻撃者の攻撃
+    atk_dice = random.randint(1, 3)
+    def_dice = random.randint(1, 3)
+    damage_to_def = max(1, atk_power * atk_dice - def_def * def_dice)
+    def_hp -= damage_to_def
+
+    # 反撃
+    def_atk_dice = random.randint(1, 3)
+    atk_def_dice = random.randint(1, 3)
+    damage_to_atk = max(1, def_power * def_atk_dice - atk_def * atk_def_dice)
+    atk_hp -= damage_to_atk
+
+    # バトルログ生成
+    log = f"**【PvPバトル】**\n"
+    log += f"{interaction.user.name} vs {opponent.name}\n\n"
+    log += f"→ {interaction.user.name} の攻撃！ サイコロ({atk_dice}) → {opponent.name} に {damage_to_def} ダメージ！\n"
+    log += f"→ {opponent.name} の反撃！ サイコロ({def_atk_dice}) → {interaction.user.name} に {damage_to_atk} ダメージ！\n\n"
+    log += f"【最終HP】\n{interaction.user.name}：{atk_hp} HP\n{opponent.name}：{def_hp} HP\n"
+
+    # 勝敗
+    if atk_hp > def_hp:
+        result = f"**{interaction.user.name} の勝利！**"
+    elif def_hp > atk_hp:
+        result = f"**{opponent.name} の勝利！**"
+    else:
+        result = "**引き分け！**"
+
+    log += f"\n{result}"
+
+    await interaction.response.send_message(log)
 
 # --- プレフィックスコマンド（参考） ---
 @bot.command()
