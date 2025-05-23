@@ -1,61 +1,69 @@
+import discord
+from discord.ext import commands
+from discord import app_commands
+import os
+
 from currency import get_balance, add_balance, subtract_balance, get_all_balances
-from equipment import get_equipment
+from equipment import get_equipment, set_equipment
 from keep_alive import keep_alive
 keep_alive()
 
-import discord
-from discord.ext import commands
-import os
-
+# Intents（メッセージ内容取得を有効に）
 intents = discord.Intents.default()
 intents.message_content = True
 
+# BotとCommandTree初期化
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Bot起動時：スラッシュコマンドを同期
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"✅ ログイン成功: {bot.user}")
 
-# 残高確認（自分だけ）
-@bot.command()
-async def coin(ctx):
-    user_id = str(ctx.author.id)
+# --- スラッシュコマンド ---
+
+# 残高確認
+@bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
+async def check_balance(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
     balance = get_balance(user_id)
-    await ctx.author.send(f"{ctx.author.mention} の starcoin 残高：{balance} SC")  # DMで送信
+    await interaction.response.send_message(
+        f"{interaction.user.mention} の starcoin 残高：{balance} SC",
+        ephemeral=True  # 自分にだけ表示
+    )
 
-# starcoin 付与（管理者限定）
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def give(ctx, member: discord.Member, amount: int):
-    user_id = str(member.id)
-    add_balance(user_id, amount)
-    await ctx.send(f"{member.mention} に {amount} SC を付与しました。")
+# アイテム装備
+@bot.tree.command(name="アイテム装備", description="指定したアイテムを装備します")
+@app_commands.describe(name="装備するアイテム名")
+async def item_set(interaction: discord.Interaction, name: str):
+    user_id = str(interaction.user.id)
+    set_equipment(user_id, "item", name)
+    await interaction.response.send_message(f"アイテム「{name}」を装備しました！", ephemeral=True)
 
-# starcoin 送金
-@bot.command()
-async def send(ctx, member: discord.Member, amount: int):
-    sender_id = str(ctx.author.id)
-    receiver_id = str(member.id)
-    if subtract_balance(sender_id, amount):
-        add_balance(receiver_id, amount)
-        await ctx.send(f"{ctx.author.mention} から {member.mention} に {amount} SC を送金しました。")
-    else:
-        await ctx.send("残高が足りません。")
+# アイテム外す
+@bot.tree.command(name="アイテム外す", description="現在のアイテム装備を外します")
+async def item_remove(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    set_equipment(user_id, "item", None)
+    await interaction.response.send_message("アイテムを外しました。", ephemeral=True)
 
-# pingテスト
+# 装備確認
+@bot.tree.command(name="装備確認", description="自分の現在の装備を表示します")
+async def show_equipment(interaction: discord.Interaction):
+    eq = get_equipment(interaction.user.id)
+    await interaction.response.send_message(
+        f"**{interaction.user.name} の装備：**\n"
+        f"武器：{eq['weapon'] or 'なし'}\n"
+        f"防具：{eq['armor'] or 'なし'}\n"
+        f"アイテム：{eq['item'] or 'なし'}",
+        ephemeral=True
+    )
+
+# --- プレフィックスコマンド（参考） ---
 @bot.command()
 async def ping(ctx):
     await ctx.send("ぽん！")
 
-# 装備確認
-@bot.command()
-async def equipment(ctx):
-    eq = get_equipment(ctx.author.id)
-    await ctx.send(
-        f"**{ctx.author.name} の装備：**\n"
-        f"武器：{eq['weapon'] or 'なし'}\n"
-        f"防具：{eq['armor'] or 'なし'}\n"
-        f"アイテム：{eq['item'] or 'なし'}"
-    )
-
+# Bot起動
 bot.run(os.environ["TOKEN"])
