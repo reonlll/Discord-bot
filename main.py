@@ -107,12 +107,19 @@ async def send(interaction: discord.Interaction, user: discord.Member, amount: i
         ephemeral=True
     )
 
-@bot.tree.command(name="コイン付与", description="指定ユーザーにスターコインを付与します（管理者のみ）")
-@app_commands.describe(user="付与する相手", amount="付与する金額")
-@commands.has_permissions(administrator=True)
-async def give_coin(interaction: discord.Interaction, user: discord.User, amount: int):
+@bot.tree.command(name="give", description="指定ユーザーにstarcoinを付与（管理者専用）")
+@app_commands.describe(user="付与先のユーザー", amount="付与するコインの枚数")
+async def give(interaction: discord.Interaction, user: discord.Member, amount: int):
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("このコマンドは管理者専用です。", ephemeral=True)
+        return
+
+    if amount <= 0:
+        await interaction.response.send_message("1以上の金額を指定してください。", ephemeral=True)
+        return
+
     add_balance(str(user.id), amount)
-    await interaction.response.send_message(f"{user.mention} に {amount} SC を付与しました。")
+    await interaction.response.send_message(f"{user.mention} に {amount} starcoin を付与しました！")
 
 # アイテム装備
 @bot.tree.command(name="アイテム装備", description="指定したアイテムを装備します")
@@ -122,6 +129,8 @@ async def item_set(interaction: discord.Interaction, name: str):
     set_equipment(user_id, "item", name)
     await interaction.response.send_message(f"アイテム「{name}」を装備しました！", ephemeral=True)
 
+
+
 @bot.tree.command(name="ランキング", description="スターコイン残高ランキングを表示します")
 async def coin_ranking(interaction: discord.Interaction):
     all_data = get_all_balances()
@@ -129,13 +138,27 @@ async def coin_ranking(interaction: discord.Interaction):
         await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
         return
 
-    sorted_data = sorted(all_data.items(), key=lambda x: x[1], reverse=True)
-    message = "**スターコイン ランキング：**\n"
-    for i, (user_id, balance) in enumerate(sorted_data[:10], start=1):
+    @bot.tree.command(name="ランキング", description="スターコイン保有ランキングを表示（管理者専用）")
+async def ranking(interaction: discord.Interaction):
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("このコマンドは管理者専用です。", ephemeral=True)
+        return
+
+    try:
+        with open("coin.json", "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        await interaction.response.send_message("コインデータが見つかりません。", ephemeral=True)
+        return
+
+    # ランキング作成
+    ranking = sorted(data.items(), key=lambda x: x[1], reverse=True)
+    message = "**スターコインランキング**\n"
+    for i, (user_id, balance) in enumerate(ranking[:10], start=1):
         user = await bot.fetch_user(int(user_id))
         message += f"{i}. {user.name}：{balance} SC\n"
 
-    await interaction.response.send_message(message, ephemeral=True)
+    await interaction.response.send_message(message)
 
 # アイテム外す
 @bot.tree.command(name="アイテム外す", description="現在のアイテム装備を外します")
