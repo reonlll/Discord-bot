@@ -33,6 +33,13 @@ async def check_balance(interaction: discord.Interaction):
         ephemeral=True  # 自分にだけ表示
     )
 
+@bot.tree.command(name="コイン付与", description="指定ユーザーにスターコインを付与します（管理者のみ）")
+@app_commands.describe(user="付与する相手", amount="付与する金額")
+@commands.has_permissions(administrator=True)
+async def give_coin(interaction: discord.Interaction, user: discord.User, amount: int):
+    add_balance(str(user.id), amount)
+    await interaction.response.send_message(f"{user.mention} に {amount} SC を付与しました。")
+
 # アイテム装備
 @bot.tree.command(name="アイテム装備", description="指定したアイテムを装備します")
 @app_commands.describe(name="装備するアイテム名")
