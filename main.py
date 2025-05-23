@@ -1,4 +1,4 @@
-from currency import get_balance, add_balance, subtract_balance
+from currency import get_balance, add_balance, subtract_balance, get_all_balances
 
 from keep_alive import keep_alive
 keep_alive()
