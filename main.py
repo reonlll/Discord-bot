@@ -138,13 +138,6 @@ async def coin_ranking(interaction: discord.Interaction):
         await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
         return
 
-@bot.tree.command(name="ランキング", description="スターコイン残高ランキングを表示します")
-async def coin_ranking(interaction: discord.Interaction):
-    all_data = get_all_balances()
-    if not all_data:
-        await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
-        return
-
     # ランキングを表示する処理（例）
     sorted_data = sorted(all_data.items(), key=lambda x: x[1], reverse=True)
     ranking_text = "\n".join(
