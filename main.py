@@ -15,11 +15,18 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f"✅ ログイン成功: {bot.user}")
-@bot.command()
-async def balance(ctx):
-    user_id = str(ctx.author.id)
-    balance = get_balance(user_id)
-    await ctx.send(f"{ctx.author.mention} のスターコイン残高：{balance} SC")
+@bot.command(name="coin")
+async def coin(ctx):
+    if ctx.author.guild_permissions.administrator:
+        message = "**全ユーザーのスターコイン残高：**\n"
+        for user_id, bal in balances.items():
+            user = await bot.fetch_user(int(user_id))
+            message += f"{user.name}：{bal} SC\n"
+        await ctx.send(message)
+    else:
+        user_id = str(ctx.author.id)
+        bal = get_balance(user_id)
+        await ctx.send(f"{ctx.author.mention} のスターコイン残高：{bal} SC")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
