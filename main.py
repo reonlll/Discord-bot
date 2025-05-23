@@ -50,6 +50,54 @@ async def check_balance(interaction: discord.Interaction):
         ephemeral=True  # 自分にだけ表示
     )
 
+import json
+from discord import app_commands
+
+@bot.tree.command(name="送金", description="他のユーザーにスターコインを送ります")
+@app_commands.describe(user="送金先のユーザー", amount="送るコインの枚数")
+async def send(interaction: discord.Interaction, user: discord.Member, amount: int):
+    sender_id = str(interaction.user.id)
+    receiver_id = str(user.id)
+
+    if sender_id == receiver_id:
+        await interaction.response.send_message("自分自身には送金できません。", ephemeral=True)
+        return
+
+    if amount <= 0:
+        await interaction.response.send_message("1以上の金額を指定してください。", ephemeral=True)
+        return
+
+    # 残高ファイル読み込み
+    try:
+        with open("coin.json", "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {}
+
+    # 初期化
+    if sender_id not in data:
+        data[sender_id] = {"coin": 0}
+    if receiver_id not in data:
+        data[receiver_id] = {"coin": 0}
+
+    # 残高チェック
+    if data[sender_id]["coin"] < amount:
+        await interaction.response.send_message("スターコインが足りません。", ephemeral=True)
+        return
+
+    # 送金処理
+    data[sender_id]["coin"] -= amount
+    data[receiver_id]["coin"] += amount
+
+    # 保存
+    with open("coin.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+    await interaction.response.send_message(
+        f"{user.mention} に {amount} starcoin を送りました！",
+        ephemeral=True
+    )
+
 @bot.tree.command(name="コイン付与", description="指定ユーザーにスターコインを付与します（管理者のみ）")
 @app_commands.describe(user="付与する相手", amount="付与する金額")
 @commands.has_permissions(administrator=True)
