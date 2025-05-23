@@ -107,19 +107,21 @@ async def send(interaction: discord.Interaction, user: discord.Member, amount: i
         ephemeral=True
     )
 
-@bot.tree.command(name="give", description="指定ユーザーにstarcoinを付与（管理者専用）")
-@app_commands.describe(user="付与先のユーザー", amount="付与するコインの枚数")
-async def give(interaction: discord.Interaction, user: discord.Member, amount: int):
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("このコマンドは管理者専用です。", ephemeral=True)
-        return
+from discord import app_commands
+from discord.ext import commands
 
+@bot.tree.command(name="コイン付与", description="指定したユーザーにスターコインを付与します")
+@app_commands.describe(user="付与する相手", amount="付与するスターコインの額")
+@app_commands.checks.has_permissions(administrator=True)
+async def coin_grant(interaction: discord.Interaction, user: discord.Member, amount: int):
     if amount <= 0:
         await interaction.response.send_message("1以上の金額を指定してください。", ephemeral=True)
         return
 
     add_balance(str(user.id), amount)
-    await interaction.response.send_message(f"{user.mention} に {amount} starcoin を付与しました！")
+    await interaction.response.send_message(
+        f"{user.mention} に {amount} starcoin を付与しました！", ephemeral=True
+    )
 
 # アイテム装備
 @bot.tree.command(name="アイテム装備", description="指定したアイテムを装備します")
