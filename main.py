@@ -64,6 +64,18 @@ async def send(interaction: discord.Interaction, user: discord.Member, amount: i
         await interaction.response.send_message("1以上の金額を指定してください。", ephemeral=True)
         return
 
+    sender_balance = get_balance(sender_id)
+    if sender_balance < amount:
+        await interaction.response.send_message("残高が不足しています。", ephemeral=True)
+        return
+
+    subtract_balance(sender_id, amount)
+    add_balance(receiver_id, amount)
+
+    await interaction.response.send_message(
+        f"{user.mention} に {amount} starcoin を送りました！"
+    )
+
     # 残高ファイル読み込み
     try:
         with open("coin.json", "r") as f:
