@@ -49,4 +49,16 @@ async def send(ctx, member: discord.Member, amount: int):
 async def ping(ctx):
     await ctx.send("ぽん！")
 
+from equipment import get_equipment
+
+@bot.command()
+async def equipment(ctx):
+    eq = get_equipment(ctx.author.id)
+    await ctx.send(
+        f"**{ctx.author.name} の装備：**\n"
+        f"武器：{eq['weapon'] or 'なし'}\n"
+        f"防具：{eq['armor'] or 'なし'}\n"
+        f"アイテム：{eq['item'] or 'なし'}"
+    )
+
 bot.run(os.environ["TOKEN"])
