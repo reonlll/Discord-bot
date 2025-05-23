@@ -1,4 +1,4 @@
-from currency import get_balance, add_balance, subtract_balance, get_all_balances
+from currency import get_balance, add_balance, subtract_balance, get_all_balances, from equipment import get_equipment
 
 from keep_alive import keep_alive
 keep_alive()
@@ -48,8 +48,6 @@ async def send(ctx, member: discord.Member, amount: int):
 @bot.command()
 async def ping(ctx):
     await ctx.send("ぽん！")
-
-from equipment import get_equipment
 
 @bot.command()
 async def equipment(ctx):
