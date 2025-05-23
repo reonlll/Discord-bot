@@ -150,9 +150,6 @@ async def show_equipment(interaction: discord.Interaction):
         f"アイテム：{eq['item'] or 'なし'}",
         ephemeral=True
     )
-    
-    import random
-from pvp_stats import weapon_power, armor_defense
 
 @bot.tree.command(name="pvp", description="対戦相手とPvPバトルをします")
 @app_commands.describe(opponent="対戦相手")
