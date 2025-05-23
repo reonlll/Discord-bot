@@ -1,7 +1,7 @@
 import json
 import os
 
-FILE_NAME = "equipment.json"
+FILE_NAME = "equipment.py"
 
 def load_equipment():
     if not os.path.exists(FILE_NAME):
