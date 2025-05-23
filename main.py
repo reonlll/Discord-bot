@@ -1,4 +1,5 @@
-from currency import get_balance, add_balance, subtract_balance, get_all_balances, from equipment import get_equipment
+from currency import get_balance, add_balance, subtract_balance, get_all_balances
+from equipment import get_equipment
 
 from keep_alive import keep_alive
 keep_alive()
