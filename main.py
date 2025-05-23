@@ -19,7 +19,7 @@ async def on_ready():
 async def coin(ctx):
     if ctx.author.guild_permissions.administrator:
         balances = get_all_balances()
-        message = "**全ユーザーのスターコイン残高：**\n"
+        message = "**全ユーザーのstarcoin残高：**\n"
         for user_id, bal in balances.items():
             user = await bot.fetch_user(int(user_id))
             message += f"{user.name}: {bal} SC\n"
@@ -27,7 +27,7 @@ async def coin(ctx):
     else:
         user_id = str(ctx.author.id)
         bal = get_balance(user_id)
-        await ctx.send(f"{ctx.author.mention} のスターコイン残高：{bal} SC")
+        await ctx.send(f"{ctx.author.mention} のstarcoin残高：{bal} SC")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
