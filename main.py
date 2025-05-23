@@ -12,7 +12,6 @@ intents.message_content = True
 
 # --- Bot と CommandTree の初期化 ---
 bot = commands.Bot(command_prefix="!", intents=intents)
-tree = app_commands.CommandTree(bot)
 
 # --- Bot起動時にスラッシュコマンドを同期 ---
 @bot.event
@@ -21,13 +20,13 @@ async def on_ready():
     print(f"✅ ログイン成功: {bot.user}")
 
 # --- スラッシュコマンド: /残高確認 ---
-@tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
+@bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
 async def check_balance(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     balance = get_balance(user_id)
     await interaction.response.send_message(
         f"{interaction.user.mention} の starcoin 残高: {balance} SC",
-        ephemeral=True  # 自分にだけ表示
+        ephemeral=True
     )
 
 # --- 通常コマンド: !ping ---
