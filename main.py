@@ -158,18 +158,6 @@ await interaction.response.send_message(log)
 # 勝率確認コマンド用
 from pvp_record import get_record
 
-# 勝敗処理のあとに追加
-if atk_hp > def_hp:
-    result = f"**{interaction.user.name} の勝利！**"
-    record_result(str(interaction.user.id), str(opponent.id))
-elif def_hp > atk_hp:
-    result = f"**{opponent.name} の勝利！**"
-    record_result(str(opponent.id), str(interaction.user.id))
-else:
-    result = "**引き分け！**"  # 記録しない
-    
-    from pvp_record import get_record
-
 @bot.tree.command(name="pvp勝率", description="自分のPvP勝敗記録を確認します")
 async def pvp_record(interaction: discord.Interaction):
     record = get_record(str(interaction.user.id))
