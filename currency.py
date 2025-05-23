@@ -30,7 +30,5 @@ def subtract_balance(user_id, amount):
         save_data(data)
         return True
     return False
-    def get_all_balances():
-    return load_data()
-    def get_all_balances():
+def get_all_balances():
     return load_data()
