@@ -154,6 +154,36 @@ async def pvp(interaction: discord.Interaction, opponent: discord.User):
 
     await interaction.response.send_message(log)
 
+from pvp_record import record_result
+
+# 勝敗処理のあとに追加
+if atk_hp > def_hp:
+    result = f"**{interaction.user.name} の勝利！**"
+    record_result(str(interaction.user.id), str(opponent.id))
+elif def_hp > atk_hp:
+    result = f"**{opponent.name} の勝利！**"
+    record_result(str(opponent.id), str(interaction.user.id))
+else:
+    result = "**引き分け！**"  # 記録しない
+    
+    from pvp_record import get_record
+
+@bot.tree.command(name="pvp勝率", description="自分のPvP勝敗記録を確認します")
+async def pvp_record(interaction: discord.Interaction):
+    record = get_record(str(interaction.user.id))
+    win = record["win"]
+    lose = record["lose"]
+    total = win + lose
+    win_rate = round(win / total * 100, 1) if total > 0 else 0
+
+    msg = (
+        f"**{interaction.user.name} のPvP記録**\n"
+        f"勝ち：{win}\n"
+        f"負け：{lose}\n"
+        f"勝率：{win_rate}%"
+    )
+    await interaction.response.send_message(msg, ephemeral=True)
+
 # --- プレフィックスコマンド（参考） ---
 @bot.command()
 async def ping(ctx):
