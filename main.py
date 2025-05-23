@@ -102,22 +102,21 @@ async def show_equipment(interaction: discord.Interaction):
     import random
 from pvp_stats import weapon_power, armor_defense
 
-@bot.tree.command(name="pvp", description="指定した相手とPvPバトルします（運要素あり）")
+@bot.tree.command(name="pvp", description="対戦相手とPvPバトルをします")
 @app_commands.describe(opponent="対戦相手")
-async def pvp(interaction: discord.Interaction, opponent: discord.User):
+async def pvp(interaction: discord.Interaction, opponent: discord.Member):
     if opponent.id == interaction.user.id:
-        await interaction.response.send_message("自分自身とは戦えません！", ephemeral=True)
+        await interaction.response.send_message("自分自身とは対戦できません。", ephemeral=True)
         return
 
     # 装備取得
     atk_eq = get_equipment(interaction.user.id)
     def_eq = get_equipment(opponent.id)
 
-    atk_power = weapon_power(atk_eq["weapon"], 5)
-    atk_def = armor_defense(atk_eq["armor"], 2)
-
-    def_power = weapon_power(def_eq["weapon"], 5)
-    def_def = armor_defense(def_eq["armor"], 2)
+    atk_power = weapon_power(atk_eq["weapon"])
+    atk_def = armor_defense(atk_eq["armor"])
+    def_power = weapon_power(def_eq["weapon"])
+    def_def = armor_defense(def_eq["armor"])
 
     # HP初期化
     atk_hp = 100
@@ -142,18 +141,18 @@ async def pvp(interaction: discord.Interaction, opponent: discord.User):
     log += f"→ {opponent.name} の反撃！ サイコロ({def_atk_dice}) → {interaction.user.name} に {damage_to_atk} ダメージ！\n\n"
     log += f"【最終HP】\n{interaction.user.name}：{atk_hp} HP\n{opponent.name}：{def_hp} HP\n"
 
-# 勝敗処理と記録
-if atk_hp > def_hp:
-    result = f"**{interaction.user.name} の勝利！**"
-    record_result(str(interaction.user.id), str(opponent.id))
-elif def_hp > atk_hp:
-    result = f"**{opponent.name} の勝利！**"
-    record_result(str(opponent.id), str(interaction.user.id))
-else:
-    result = "**引き分け！**"
+    # 勝敗判定と記録
+    if atk_hp > def_hp:
+        result = f"**{interaction.user.name} の勝利！**"
+        record_result(str(interaction.user.id), str(opponent.id))
+    elif def_hp > atk_hp:
+        result = f"**{opponent.name} の勝利！**"
+        record_result(str(opponent.id), str(interaction.user.id))
+    else:
+        result = "**引き分け！**"  # 記録しない
 
-log += f"\n{result}"
-await interaction.response.send_message(log)
+    log += f"\n{result}"
+    await interaction.response.send_message(log)
 
 # 勝率確認コマンド用
 from pvp_record import get_record
