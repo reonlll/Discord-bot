@@ -138,19 +138,20 @@ async def coin_ranking(interaction: discord.Interaction):
         await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
         return
 
-@bot.tree.command(name="ランキング", description="ランキングを表示します")
-async def ranking(interaction: discord.Interaction):
-    # ここも4スペースずつインデント
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("このコマンドは管理者専用です。", ephemeral=True)
+@bot.tree.command(name="ランキング", description="スターコイン残高ランキングを表示します")
+async def coin_ranking(interaction: discord.Interaction):
+    all_data = get_all_balances()
+    if not all_data:
+        await interaction.response.send_message("まだ誰もstarcoinを持っていません。", ephemeral=True)
         return
 
-    try:
-        with open("coin.json", "r") as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        await interaction.response.send_message("コインデータが見つかりません。", ephemeral=True)
-        return
+    # ランキングを表示する処理（例）
+    sorted_data = sorted(all_data.items(), key=lambda x: x[1], reverse=True)
+    ranking_text = "\n".join(
+        [f"{i+1}位 <@{user_id}>：{balance} SC" for i, (user_id, balance) in enumerate(sorted_data[:10])]
+    )
+
+    await interaction.response.send_message(f"**スターコインランキング**\n{ranking_text}")
 
     # ランキング作成
     ranking = sorted(data.items(), key=lambda x: x[1], reverse=True)
