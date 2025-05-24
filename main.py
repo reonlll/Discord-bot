@@ -2,9 +2,12 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import os
+import json
+import random
 
 from currency import get_balance, add_balance, subtract_balance, get_all_balances
 from equipment import get_equipment, set_equipment
+from pvp_record import get_record, record_result
 from keep_alive import keep_alive
 keep_alive()
 
