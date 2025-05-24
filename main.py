@@ -40,36 +40,115 @@ async def guild_card(interaction: discord.Interaction):
 
     await interaction.response.send_message(message, ephemeral=True)
 
+import discord
+from discord.ext import commands
 import json
 import os
-from discord import app_commands
-import discord
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 EQUIP_FILE = "equipment.json"
 
-def save_equipment(user_id, weapon=None, armor=None):
+def save_equipment(user_id, weapon=None, armor=None, item=None):
     if os.path.exists(EQUIP_FILE):
         with open(EQUIP_FILE, "r") as f:
             data = json.load(f)
     else:
         data = {}
 
-    if str(user_id) not in data:
-        data[str(user_id)] = {}
+    user_id = str(user_id)
+    if user_id not in data:
+        data[user_id] = {}
 
     if weapon:
-        data[str(user_id)]["weapon"] = weapon
+        data[user_id]["weapon"] = weapon
     if armor:
-        data[str(user_id)]["armor"] = armor
+        data[user_id]["armor"] = armor
+    if item:
+        data[user_id]["item"] = item
 
     with open(EQUIP_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-@bot.tree.command(name="装備", description="武器または防具を装備します")
-@app_commands.describe(
-    weapon="装備する武器（例: 木の剣, 鉄の剣, 炎の剣）",
-    armor="装備する防具（例: 布の服, 鉄の鎧, ドラゴンアーマー）"
-)
+class EquipView(discord.ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=120)
+        self.user_id = user_id
+
+        self.weapon_select = discord.ui.Select(
+            placeholder="武器を選んでください",
+            options=[
+                discord.SelectOption(label="木の剣", description="攻撃力1"),
+                discord.SelectOption(label="鉄の剣", description="攻撃力2"),
+                discord.SelectOption(label="炎の剣", description="攻撃力3"),
+            ],
+            custom_id="weapon_select",
+        )
+        self.weapon_select.callback = self.select_callback
+        self.add_item(self.weapon_select)
+
+        self.armor_select = discord.ui.Select(
+            placeholder="防具を選んでください",
+            options=[
+                discord.SelectOption(label="布の服", description="防御力1"),
+                discord.SelectOption(label="鉄の鎧", description="防御力2"),
+                discord.SelectOption(label="ドラゴンアーマー", description="防御力3"),
+            ],
+            custom_id="armor_select",
+        )
+        self.armor_select.callback = self.select_callback
+        self.add_item(self.armor_select)
+
+        self.item_select = discord.ui.Select(
+            placeholder="アイテムを選んでください",
+            options=[
+                discord.SelectOption(label="回復薬", description="HP30回復"),
+                discord.SelectOption(label="爆弾", description="敵に20ダメージ"),
+                discord.SelectOption(label="毒消し", description="状態異常解除"),
+            ],
+            custom_id="item_select",
+        )
+        self.item_select.callback = self.select_callback
+        self.add_item(self.item_select)
+
+    async def select_callback(self, interaction: discord.Interaction):
+        selected = interaction.data["values"][0]
+        cid = interaction.data["custom_id"]
+
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("これはあなたの装備メニューではありません。", ephemeral=True)
+            return
+
+        if cid == "weapon_select":
+            save_equipment(self.user_id, weapon=selected)
+            await interaction.response.send_message(f"**武器**を **{selected}** に装備しました。", ephemeral=True)
+        elif cid == "armor_select":
+            save_equipment(self.user_id, armor=selected)
+            await interaction.response.send_message(f"**防具**を **{selected}** に装備しました。", ephemeral=True)
+        elif cid == "item_select":
+            save_equipment(self.user_id, item=selected)
+            await interaction.response.send_message(f"**アイテム**を **{selected}** に装備しました。", ephemeral=True)
+
+@bot.tree.command(name="装備", description="武器・防具・アイテムを装備します")
+async def equip(interaction: discord.Interaction):
+    view = EquipView(interaction.user.id)
+    await interaction.response.send_message("装備を選んでください：", view=view, ephemeral=True)
+
+@bot.event
+async def on_ready():
+    print(f"✅ ログイン成功: {bot.user}")
+    try:
+        synced = await bot.tree.sync()
+        print(f"スラッシュコマンドを同期しました ({len(synced)}個)")
+    except Exception as e:
+        print(f"同期に失敗しました: {e}")
+
+bot.run(os.environ["TOKEN"])
+
+
 async def equip(interaction: discord.Interaction, weapon: str = None, armor: str = None):
     if weapon is None and armor is None:
         await interaction.response.send_message("武器または防具のどちらかを指定してください。", ephemeral=True)
