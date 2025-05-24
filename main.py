@@ -40,6 +40,79 @@ async def guild_card(interaction: discord.Interaction):
 
     await interaction.response.send_message(message, ephemeral=True)
 
+import json
+import os
+from discord import app_commands
+import discord
+
+EQUIP_FILE = "equipment.json"
+
+def save_equipment(user_id, weapon=None, armor=None):
+    if os.path.exists(EQUIP_FILE):
+        with open(EQUIP_FILE, "r") as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    if str(user_id) not in data:
+        data[str(user_id)] = {}
+
+    if weapon:
+        data[str(user_id)]["weapon"] = weapon
+    if armor:
+        data[str(user_id)]["armor"] = armor
+
+    with open(EQUIP_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+@bot.tree.command(name="装備", description="武器または防具を装備します")
+@app_commands.describe(
+    weapon="装備する武器（例: 木の剣, 鉄の剣, 炎の剣）",
+    armor="装備する防具（例: 布の服, 鉄の鎧, ドラゴンアーマー）"
+)
+async def equip(interaction: discord.Interaction, weapon: str = None, armor: str = None):
+    if weapon is None and armor is None:
+        await interaction.response.send_message("武器または防具のどちらかを指定してください。", ephemeral=True)
+        return
+
+    save_equipment(interaction.user.id, weapon, armor)
+    response = f"{interaction.user.mention} の装備を更新しました：\n"
+    if weapon:
+        response += f"- 武器：{weapon}\n"
+    if armor:
+        response += f"- 防具：{armor}\n"
+
+    await interaction.response.send_message(response, ephemeral=True)
+
+import json
+import os
+from discord import app_commands
+import discord
+
+EQUIP_FILE = "equipment.json"
+
+def load_equipment(user_id):
+    if os.path.exists(EQUIP_FILE):
+        with open(EQUIP_FILE, "r") as f:
+            data = json.load(f)
+        return data.get(str(user_id), {})
+    return {}
+
+@bot.tree.command(name="装備一覧", description="現在の装備を確認します")
+async def show_equipment(interaction: discord.Interaction):
+    equip = load_equipment(interaction.user.id)
+    weapon = equip.get("weapon", "未装備")
+    armor = equip.get("armor", "未装備")
+    item = equip.get("item", "未装備")
+
+    msg = (
+        f"**{interaction.user.name} の現在の装備**\n"
+        f"武器：{weapon}\n"
+        f"防具：{armor}\n"
+        f"アイテム：{item}"
+    )
+    await interaction.response.send_message(msg, ephemeral=True)
+
 # 残高確認
 @bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
 async def check_balance(interaction: discord.Interaction):
