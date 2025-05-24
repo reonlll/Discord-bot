@@ -256,6 +256,28 @@ async def show_equipment(interaction: discord.Interaction):
         ephemeral=True
     )
 
+@bot.tree.command(name="残高一覧", description="全ユーザーのstarcoin残高を表示します（管理者のみ）")
+@app_commands.checks.has_permissions(administrator=True)
+async def list_all_balances(interaction: discord.Interaction):
+    try:
+        with open("coin.json", "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        await interaction.response.send_message("残高データが見つかりません。", ephemeral=True)
+        return
+
+    if not data:
+        await interaction.response.send_message("ユーザーの残高情報がありません。", ephemeral=True)
+        return
+
+    msg = "**全ユーザーの残高一覧**\n"
+    for user_id, info in data.items():
+        user = await bot.fetch_user(int(user_id))
+        coin = info.get("coin", 0)
+        msg += f"{user.name}：{coin} SC\n"
+
+    await interaction.response.send_message(msg, ephemeral=True)
+
 @bot.tree.command(name="pvp", description="対戦相手とPvPバトルをします")
 @app_commands.describe(opponent="対戦相手")
 async def pvp(interaction: discord.Interaction, opponent: discord.Member):
