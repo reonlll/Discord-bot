@@ -84,35 +84,6 @@ async def equip(interaction: discord.Interaction, weapon: str = None, armor: str
 
     await interaction.response.send_message(response, ephemeral=True)
 
-import json
-import os
-from discord import app_commands
-import discord
-
-EQUIP_FILE = "equipment.json"
-
-def load_equipment(user_id):
-    if os.path.exists(EQUIP_FILE):
-        with open(EQUIP_FILE, "r") as f:
-            data = json.load(f)
-        return data.get(str(user_id), {})
-    return {}
-
-@bot.tree.command(name="装備一覧", description="現在の装備を確認します")
-async def show_equipment(interaction: discord.Interaction):
-    equip = load_equipment(interaction.user.id)
-    weapon = equip.get("weapon", "未装備")
-    armor = equip.get("armor", "未装備")
-    item = equip.get("item", "未装備")
-
-    msg = (
-        f"**{interaction.user.name} の現在の装備**\n"
-        f"武器：{weapon}\n"
-        f"防具：{armor}\n"
-        f"アイテム：{item}"
-    )
-    await interaction.response.send_message(msg, ephemeral=True)
-
 # 残高確認
 @bot.tree.command(name="残高確認", description="自分のstarcoin残高を確認します")
 async def check_balance(interaction: discord.Interaction):
