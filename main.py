@@ -43,12 +43,6 @@ async def guild_card(interaction: discord.Interaction):
 
     await interaction.response.send_message(message, ephemeral=True)
 
-
-intents = discord.Intents.default()
-intents.message_content = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
 EQUIP_FILE = "equipment.json"
 
 def save_equipment(user_id, weapon=None, armor=None, item=None):
