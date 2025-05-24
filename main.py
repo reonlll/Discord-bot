@@ -137,17 +137,6 @@ async def equip(interaction: discord.Interaction):
     view = EquipView(interaction.user.id)
     await interaction.response.send_message("装備を選んでください：", view=view, ephemeral=True)
 
-@bot.event
-async def on_ready():
-    print(f"✅ ログイン成功: {bot.user}")
-    try:
-        synced = await bot.tree.sync()
-        print(f"スラッシュコマンドを同期しました ({len(synced)}個)")
-    except Exception as e:
-        print(f"同期に失敗しました: {e}")
-
-bot.run(os.environ["TOKEN"])
-
 
 async def equip(interaction: discord.Interaction, weapon: str = None, armor: str = None):
     if weapon is None and armor is None:
