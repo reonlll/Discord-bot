@@ -112,7 +112,7 @@ skill = job.get("skill", "なし")
 
     message = (
         f"**{interaction.user.name} のギルドカード**\n"
-        f"職業：{job}（HP：{hp} / 特性：{skill}）\n"
+        f"職業：{job.get('name', '未設定')} (HP：{hp} / 特性：{skill})\n"
         f"スターコイン：{balance} SC\n\n"
         f"【能力値】\n"
         f"攻撃力：{atk}\n"
