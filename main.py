@@ -21,6 +21,14 @@ job_data = {
     "狙撃手": {"hp": 75, "skill": "20%でもう1ターン"}
 }
 
+def get_job(user_id: int):
+    try:
+        with open("job.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get(str(user_id), "未設定")
+    except FileNotFoundError:
+        return "未設定"
+
 # Intents（メッセージ内容取得を有効に）
 intents = discord.Intents.default()
 intents.message_content = True
