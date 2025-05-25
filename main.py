@@ -430,6 +430,33 @@ async def set_job(interaction: discord.Interaction, user: discord.Member, job: a
 
     await interaction.response.send_message(f"{user.mention} に職業「{job_name}」を設定しました。", ephemeral=True)
 
+@bot.tree.command(name="装備を外す", description="全ての装備（武器・防具・アイテム）を外します")
+async def unequip_all(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+
+    # equipment.jsonを読み込む
+    try:
+        with open("equipment.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {}
+
+    # 対象ユーザーがいなければ初期化
+    if user_id not in data:
+        data[user_id] = {}
+
+    # 全ての装備をNoneに設定
+    data[user_id]["weapon"] = None
+    data[user_id]["armor"] = None
+    data[user_id]["item"] = None
+
+    # 保存
+    with open("equipment.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+    await interaction.response.send_message("武器・防具・アイテムをすべて外しました。", ephemeral=True)
+
+
 
 # --- プレフィックスコマンド（参考） ---
 @bot.command()
