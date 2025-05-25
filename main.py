@@ -404,23 +404,31 @@ def set_job(user_id: int, job_name: str):
     "狙撃手": {"hp": 75, "skill": "20%でもう1ターン"}
 }
 
-@bot.tree.command(name="職業選択", description="指定したユーザーに職業を付与します（管理者専用）")
-@app_commands.describe(user="職業を付与するユーザー", job="職業名")
-@commands.has_permissions(administrator=True)
-async def assign_job(interaction: discord.Interaction, user: discord.Member, job: str):
-    if job not in 職業データ:
-        await interaction.response.send_message("無効な職業名です。", ephemeral=True)
-        return
+@bot.tree.command(name="職業選択", description="指定したユーザーに職業を設定します（管理者専用）")
+@app_commands.describe(user="職業を与えるユーザー", job="職業名")
+@app_commands.choices(job=職業一覧)
+@app_commands.checks.has_permissions(administrator=True)
+async def set_job(interaction: discord.Interaction, user: discord.Member, job: app_commands.Choice[str]):
+    job_name = job.value
+    user_id = str(user.id)
 
-    with open("job.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+    # job.json に保存
+    try:
+        with open("job.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {}
 
-    data[str(user.id)] = {"name": job, **職業データ[job]}
+    data[user_id] = {
+        "name": job_name,
+        "hp": 職業データ[job_name]["hp"],
+        "skill": 職業データ[job_name]["skill"]
+    }
 
     with open("job.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-    await interaction.response.send_message(f"{user.display_name} に職業「{job}」を付与しました！", ephemeral=True)
+    await interaction.response.send_message(f"{user.mention} に職業「{job_name}」を設定しました。", ephemeral=True)
 
 
 # --- プレフィックスコマンド（参考） ---
