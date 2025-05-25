@@ -14,13 +14,6 @@ from pvp_record import get_record, record_result
 from keep_alive import keep_alive
 keep_alive()
 
-job_data = {
-    "剣士": {"hp": 100, "skill": "なし"},
-    "魔法使い": {"hp": 90, "skill": "必ず先制"},
-    "暗殺者": {"hp": 85, "skill": "20%で攻撃回避"},
-    "狙撃手": {"hp": 75, "skill": "20%でもう1ターン"}
-}
-
 def get_job(user_id: int):
     try:
         with open("job.json", "r", encoding="utf-8") as f:
@@ -397,16 +390,30 @@ def set_job(user_id: int, job_name: str):
     with open(JOB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-@bot.tree.command(name="職業選択", description="指定ユーザーに職業を設定します（管理者のみ）")
-@app_commands.describe(user="職業を設定するユーザー", job="設定する職業（剣士/魔法使い/暗殺者/狙撃手）")
-@app_commands.checks.has_permissions(administrator=True)
-async def set_user_job(interaction: discord.Interaction, user: discord.Member, job: str):
-    if job not in job_data:
-        await interaction.response.send_message("その職業は存在しません。剣士、魔法使い、暗殺者、狙撃手 から選んでください。", ephemeral=True)
+職業データ = {
+    "剣士": {"hp": 100, "skill": "なし"},
+    "魔法使い": {"hp": 90, "skill": "必ず先制"},
+    "暗殺者": {"hp": 85, "skill": "20%で攻撃回避"},
+    "狙撃手": {"hp": 75, "skill": "20%でもう1ターン"}
+}
+
+@bot.tree.command(name="職業選択", description="指定したユーザーに職業を付与します（管理者専用）")
+@app_commands.describe(user="職業を付与するユーザー", job="職業名")
+@commands.has_permissions(administrator=True)
+async def assign_job(interaction: discord.Interaction, user: discord.Member, job: str):
+    if job not in 職業データ:
+        await interaction.response.send_message("無効な職業名です。", ephemeral=True)
         return
 
-    set_job(user.id, job)
-    await interaction.response.send_message(f"{user.mention} に「{job}」の職業を設定しました。", ephemeral=True)
+    with open("job.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    data[str(user.id)] = {"name": job, **職業データ[job]}
+
+    with open("job.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+    await interaction.response.send_message(f"{user.display_name} に職業「{job}」を付与しました！", ephemeral=True)
 
 
 # --- プレフィックスコマンド（参考） ---
