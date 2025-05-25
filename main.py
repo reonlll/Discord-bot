@@ -97,38 +97,38 @@ async def on_ready():
 
 @bot.tree.command(name="ギルドカード", description="自分のスターコイン残高・職業・装備を表示します")
 async def guild_card(interaction: discord.Interaction):
+    # ユーザーのIDを文字列として取得
     user_id = str(interaction.user.id)
+    
+    # 残高、装備、職業データの取得
     balance = get_balance(user_id)
-    eq = get_equipment(interaction.user.id)
-    job = get_job(interaction.user.id)
-
-    # 職業に基づくHP
-if isinstance(job, dict):
+    eq = get_equipment(user_id)
+    job = get_job(user_id) or {"name": "未設定", "hp": "不明", "skill": "なし"}
+    
+    # 辞書から各項目を取得
+    job_name = job.get("name", "未設定")
     hp = job.get("hp", "不明")
     skill = job.get("skill", "なし")
-    job_name = job.get("name", "未設定")
-else:
-    hp = "不明"
-    skill = "なし"
-    job_name = "未設定"
+    
+    # 装備に基づく能力値（装備がない場合は「なし」）
+    atk = weapon_power(eq["weapon"]) if eq.get("weapon") else "-"
+    defense = armor_defense(eq["armor"]) if eq.get("armor") else "-"
 
-    # 攻撃力・防御力
-    atk = weapon_power(eq["weapon"])
-    defense = armor_defense(eq["armor"])
-
+    # 表示メッセージの作成
     message = (
         f"**{interaction.user.name} のギルドカード**\n"
-        f"職業：{job.get('name', '未設定')} (HP：{hp} / 特性：{skill})\n"
+        f"職業：{job_name} (HP：{hp} / 特性：{skill})\n"
         f"スターコイン：{balance} SC\n\n"
-        f"【能力値】\n"
+        f"[能力値]\n"
         f"攻撃力：{atk}\n"
         f"防御力：{defense}\n\n"
-        f"【装備】\n"
-        f"武器：{eq['weapon'] or 'なし'}\n"
-        f"防具：{eq['armor'] or 'なし'}\n"
-        f"アイテム：{eq['item'] or 'なし'}"
+        f"[装備]\n"
+        f"武器：{eq.get('weapon', 'なし')}\n"
+        f"防具：{eq.get('armor', 'なし')}\n"
+        f"アイテム：{eq.get('item', 'なし')}"
     )
     
+    # メッセージを、コマンド実行者にのみ表示（ephemeral）
     await interaction.response.send_message(message, ephemeral=True)
 
 EQUIP_FILE = "equipment.json"
