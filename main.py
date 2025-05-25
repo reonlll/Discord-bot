@@ -128,7 +128,6 @@ else:
         f"防具：{eq['armor'] or 'なし'}\n"
         f"アイテム：{eq['item'] or 'なし'}"
     )
-
     await interaction.response.send_message(message, ephemeral=True)
 
 EQUIP_FILE = "equipment.json"
