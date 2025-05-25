@@ -22,6 +22,13 @@ def get_job(user_id: int):
     except FileNotFoundError:
         return {"name": "未設定", "hp": "不明", "skill": "なし"}
 
+職業一覧 = [
+    app_commands.Choice(name="剣士", value="剣士"),
+    app_commands.Choice(name="魔法使い", value="魔法使い"),
+    app_commands.Choice(name="暗殺者", value="暗殺者"),
+    app_commands.Choice(name="狙撃手", value="狙撃手"),
+]
+
 # Intents（メッセージ内容取得を有効に）
 intents = discord.Intents.default()
 intents.message_content = True
