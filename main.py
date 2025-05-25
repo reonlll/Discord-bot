@@ -25,9 +25,9 @@ def get_job(user_id: int):
     try:
         with open("job.json", "r", encoding="utf-8") as f:
             data = json.load(f)
-        return data.get(str(user_id), "未設定")
+        return data.get(str(user_id), {"name": "未設定", "hp": "不明", "skill": "なし"})
     except FileNotFoundError:
-        return "未設定"
+        return {"name": "未設定", "hp": "不明", "skill": "なし"}
 
 # Intents（メッセージ内容取得を有効に）
 intents = discord.Intents.default()
