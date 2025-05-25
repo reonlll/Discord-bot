@@ -14,6 +14,13 @@ from pvp_record import get_record, record_result
 from keep_alive import keep_alive
 keep_alive()
 
+job_data = {
+    "剣士": {"hp": 100, "skill": "なし"},
+    "魔法使い": {"hp": 90, "skill": "必ず先制"},
+    "暗殺者": {"hp": 85, "skill": "20%で攻撃回避"},
+    "狙撃手": {"hp": 75, "skill": "20%でもう1ターン"}
+}
+
 # Intents（メッセージ内容取得を有効に）
 intents = discord.Intents.default()
 intents.message_content = True
