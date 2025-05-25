@@ -103,7 +103,7 @@ async def guild_card(interaction: discord.Interaction):
     job = get_job(interaction.user.id)
 
     # 職業に基づくHP
-    if isinstance(job, dict):
+if isinstance(job, dict):
     hp = job.get("hp", "不明")
     skill = job.get("skill", "なし")
     job_name = job.get("name", "未設定")
