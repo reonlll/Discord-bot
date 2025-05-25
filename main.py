@@ -20,7 +20,20 @@ intents.message_content = True
 
 # BotとCommandTree初期化
 bot = commands.Bot(command_prefix="!", intents=intents)
+# PvP状態を保持する
+active_battles = {}
 
+# PvP状態クラス
+class PvPBattleState:
+    def __init__(self, player1_id, player2_id):
+        self.player1_id = player1_id
+        self.player2_id = player2_id
+        self.hp = {
+            player1_id: 100,
+            player2_id: 100
+        }
+        self.turn = player1_id
+        self.id = str(uuid.uuid4())
 # Bot起動時：スラッシュコマンドを同期
 @bot.event
 async def on_ready():
