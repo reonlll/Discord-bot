@@ -332,6 +332,23 @@ async def list_all_balances(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg, ephemeral=True)
 
+@bot.tree.command(name="pvp", description="PvPバトルを開始します")
+@app_commands.describe(opponent="対戦相手")
+async def pvp(interaction: discord.Interaction, opponent: discord.Member):
+    if opponent.id == interaction.user.id:
+        await interaction.response.send_message("自分とは戦えません。", ephemeral=True)
+        return
+
+    state = PvPBattleState(str(interaction.user.id), str(opponent.id))
+    active_battles[state.id] = state
+
+    view = PvPButtonView(state, bot)
+    await interaction.response.send_message(
+        f"{interaction.user.name} vs {opponent.name} のバトルが開始！\n"
+        f"{interaction.user.name} のターンです。攻撃してください！",
+        view=view
+    )
+
 
 # --- プレフィックスコマンド（参考） ---
 @bot.command()
