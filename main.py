@@ -34,6 +34,44 @@ class PvPBattleState:
         }
         self.turn = player1_id
         self.id = str(uuid.uuid4())
+
+class PvPButtonView(View):
+    def __init__(self, state, bot):
+        super().__init__(timeout=60)
+        self.state = state
+        self.bot = bot
+
+        self.attack_button = Button(label="攻撃する", style=discord.ButtonStyle.primary)
+        self.attack_button.callback = self.attack_callback
+        self.add_item(self.attack_button)
+
+    async def attack_callback(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        if self.state.turn != user_id:
+            await interaction.response.send_message("あなたのターンではありません！", ephemeral=True)
+            return
+
+        opponent_id = self.state.player2_id if self.state.turn == self.state.player1_id else self.state.player1_id
+        damage = random.randint(10, 20)
+        self.state.hp[opponent_id] -= damage
+
+        if self.state.hp[opponent_id] <= 0:
+            await interaction.response.edit_message(
+                content=f"{interaction.user.name} が勝利しました！",
+                view=None
+            )
+            del active_battles[self.state.id]
+            return
+
+        self.state.turn = opponent_id
+        await interaction.response.edit_message(
+            content=f"{interaction.user.name} の攻撃！ {damage} ダメージ！\n\n"
+                    f"現在のHP：\n- {interaction.user.name}：{self.state.hp[user_id]}HP\n"
+                    f"- 相手：{self.state.hp[opponent_id]}HP\n\n"
+                    f"次は相手のターンです。",
+            view=self
+        )
+
 # Bot起動時：スラッシュコマンドを同期
 @bot.event
 async def on_ready():
