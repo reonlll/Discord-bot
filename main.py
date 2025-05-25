@@ -356,6 +356,31 @@ async def pvp(interaction: discord.Interaction, opponent: discord.Member):
         view=view
     )
 
+JOB_FILE = "job.json"
+
+def set_job(user_id: int, job_name: str):
+    try:
+        with open(JOB_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {}
+
+    data[str(user_id)] = job_name
+
+    with open(JOB_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+@bot.tree.command(name="職業選択", description="指定ユーザーに職業を設定します（管理者のみ）")
+@app_commands.describe(user="職業を設定するユーザー", job="設定する職業（剣士/魔法使い/暗殺者/狙撃手）")
+@app_commands.checks.has_permissions(administrator=True)
+async def set_user_job(interaction: discord.Interaction, user: discord.Member, job: str):
+    if job not in job_data:
+        await interaction.response.send_message("その職業は存在しません。剣士、魔法使い、暗殺者、狙撃手 から選んでください。", ephemeral=True)
+        return
+
+    set_job(user.id, job)
+    await interaction.response.send_message(f"{user.mention} に「{job}」の職業を設定しました。", ephemeral=True)
+
 
 # --- プレフィックスコマンド（参考） ---
 @bot.command()
