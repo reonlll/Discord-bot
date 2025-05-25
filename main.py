@@ -103,8 +103,8 @@ async def guild_card(interaction: discord.Interaction):
     job = get_job(interaction.user.id)
 
     # 職業に基づくHP
-    hp = job_data.get(job, {}).get("hp", "不明")
-skill = job_data.get(job, {}).get("skill", "なし")
+    hp = job.get("hp", "不明")
+skill = job.get("skill", "なし")
 
     # 攻撃力・防御力
     atk = weapon_power(eq["weapon"])
