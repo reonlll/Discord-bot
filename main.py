@@ -95,15 +95,28 @@ async def on_ready():
 
 # --- スラッシュコマンド ---
 
-@bot.tree.command(name="ギルドカード", description="自分のスターコイン残高と装備を表示します")
+@bot.tree.command(name="ギルドカード", description="自分のスターコイン残高・職業・装備を表示します")
 async def guild_card(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     balance = get_balance(user_id)
     eq = get_equipment(interaction.user.id)
+    job = get_job(interaction.user.id)
+
+    # 職業に基づくHP
+    hp = job_data.get(job, {}).get("hp", "不明")
+    skill = job_data.get(job, {}).get("skill", "なし")
+
+    # 攻撃力・防御力
+    atk = weapon_power(eq["weapon"])
+    defense = armor_defense(eq["armor"])
 
     message = (
         f"**{interaction.user.name} のギルドカード**\n"
+        f"職業：{job}（HP：{hp} / 特性：{skill}）\n"
         f"スターコイン：{balance} SC\n\n"
+        f"【能力値】\n"
+        f"攻撃力：{atk}\n"
+        f"防御力：{defense}\n\n"
         f"【装備】\n"
         f"武器：{eq['weapon'] or 'なし'}\n"
         f"防具：{eq['armor'] or 'なし'}\n"
