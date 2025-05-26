@@ -1,0 +1,5 @@
+[
+  { "name": "布の服", "description": "防御力1", "defense": 1 },
+  { "name": "鉄の鎧", "description": "防御力2", "defense": 2 },
+  { "name": "ドラゴンアーマー", "description": "防御力3", "defense": 3 }
+]
