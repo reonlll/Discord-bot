@@ -412,6 +412,57 @@ async def set_job(interaction: discord.Interaction, user: discord.Member, job: a
     job_name = job.value
     user_id = str(user.id)
 
+@bot.tree.command(name="武器登録", description="新しい武器を登録します（管理者のみ）")
+@app_commands.describe(name="武器の名前", power="攻撃力（数字）")
+@app_commands.checks.has_permissions(administrator=True)
+async def register_weapon(interaction: discord.Interaction, name: str, power: int):
+    try:
+        with open("weapons.json", "r", encoding="utf-8") as f:
+            weapons = json.load(f)
+    except FileNotFoundError:
+        weapons = {}
+
+    weapons[name] = power
+
+    with open("weapons.json", "w", encoding="utf-8") as f:
+        json.dump(weapons, f, indent=4)
+
+    await interaction.response.send_message(f"武器「{name}（攻撃力{power}）」を登録しました！", ephemeral=True)
+
+@bot.tree.command(name="防具登録", description="新しい防具を登録します（管理者のみ）")
+@app_commands.describe(name="防具の名前", defense="防御力（数字）")
+@app_commands.checks.has_permissions(administrator=True)
+async def register_armor(interaction: discord.Interaction, name: str, defense: int):
+    try:
+        with open("armors.json", "r", encoding="utf-8") as f:
+            armors = json.load(f)
+    except FileNotFoundError:
+        armors = {}
+
+    armors[name] = defense
+
+    with open("armors.json", "w", encoding="utf-8") as f:
+        json.dump(armors, f, indent=4)
+
+    await interaction.response.send_message(f"防具「{name}（防御力{defense}）」を登録しました！", ephemeral=True)
+
+@bot.tree.command(name="アイテム登録", description="新しいアイテムを登録します（管理者のみ）")
+@app_commands.describe(name="アイテムの名前", description_text="効果の説明")
+@app_commands.checks.has_permissions(administrator=True)
+async def register_item(interaction: discord.Interaction, name: str, description_text: str):
+    try:
+        with open("items.json", "r", encoding="utf-8") as f:
+            items = json.load(f)
+    except FileNotFoundError:
+        items = {}
+
+    items[name] = description_text
+
+    with open("items.json", "w", encoding="utf-8") as f:
+        json.dump(items, f, indent=4)
+
+    await interaction.response.send_message(f"アイテム「{name}（{description_text}）」を登録しました！", ephemeral=True)
+
     # job.json に保存
     try:
         with open("job.json", "r", encoding="utf-8") as f:
