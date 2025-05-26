@@ -1,0 +1,5 @@
+[
+  { "name": "回復薬", "description": "HP30回復", "effect": "heal_30" },
+  { "name": "爆弾", "description": "敵に20ダメージ", "effect": "damage_20" },
+  { "name": "毒消し", "description": "状態異常解除", "effect": "cure_status" }
+]
